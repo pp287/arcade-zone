@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArcadeZone — Free Online Games</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/" class="logo">🎮 ARCADE<span>ZONE</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/mini/">Mini Games (200)</a>
+      <a href="/leaderboard">Leaderboard</a>
+      <a href="/admin">Admin</a>
+    </div>
+    <div class="player-area" id="playerArea">
+      <span id="playerName">Guest</span>
+      <button class="btn btn-sm" onclick="showLoginModal()">Login</button>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <h1>Welcome to <span class="glow">ArcadeZone</span></h1>
+    <p>Play 5 classic games + 200 mini games. Compete for the highest score. Have fun!</p>
+    <div id="announcementBar" class="announcement-bar"></div>
+  </header>
+
+  <section class="games-grid" id="gamesGrid">
+    <a href="/games/snake" class="game-card" data-game="snake">
+      <div class="game-icon">🐍</div>
+      <h3>Snake</h3>
+      <p>Guide the snake, eat food, grow longer — don't hit the walls!</p>
+      <div class="game-stats" id="stats-snake"></div>
+    </a>
+    <a href="/games/tetris" class="game-card" data-game="tetris">
+      <div class="game-icon">🧱</div>
+      <h3>Tetris</h3>
+      <p>Stack blocks, clear lines, chase the high score!</p>
+      <div class="game-stats" id="stats-tetris"></div>
+    </a>
+    <a href="/games/memory" class="game-card" data-game="memory">
+      <div class="game-icon">🃏</div>
+      <h3>Memory Match</h3>
+      <p>Flip cards, find pairs, test your memory!</p>
+      <div class="game-stats" id="stats-memory"></div>
+    </a>
+    <a href="/games/2048" class="game-card" data-game="2048">
+      <div class="game-icon">🔢</div>
+      <h3>2048</h3>
+      <p>Slide tiles, merge numbers, reach 2048!</p>
+      <div class="game-stats" id="stats-2048"></div>
+    </a>
+    <a href="/games/breakout" class="game-card" data-game="breakout">
+      <div class="game-icon">🧨</div>
+      <h3>Breakout</h3>
+      <p>Bounce the ball, smash bricks, clear the board!</p>
+      <div class="game-stats" id="stats-breakout"></div>
+    </a>
+  </section>
+
+  <section style="text-align:center;padding:2rem;">
+    <a href="/mini/" class="game-card" style="display:inline-block;max-width:500px;background:linear-gradient(135deg,#12122a,#1a1a4a);border-color:var(--neon-pink);">
+      <div class="game-icon" style="font-size:3.5rem;">🎮</div>
+      <h3 style="color:var(--neon-pink);font-size:1.6rem;">200 More Mini Games!</h3>
+      <p>Clickers, Dodgers, Runners, Puzzles, Memory challenges & more — all free, all playable in your browser!</p>
+      <div class="game-stats" style="border-color:var(--neon-pink);">🕹️ 7 Game Types &nbsp;|&nbsp; 🎯 200 Games &nbsp;|&nbsp; 🆓 All Free</div>
+    </a>
+  </section>
+
+  <section class="stats-overview" id="statsOverview">
+    <div class="stat-item"><span id="totalPlayers">0</span><label>Total Players</label></div>
+    <div class="stat-item"><span id="totalGames">0</span><label>Games Played</label></div>
+    <div class="stat-item"><span>205</span><label>Games Available</label></div>
+  </section>
+
+  <footer>
+    <p>&copy; 2026 ArcadeZone. All rights reserved.</p>
+  </footer>
+
+  <!-- Login Modal -->
+  <div class="modal" id="loginModal">
+    <div class="modal-content">
+      <h2>Enter Your Nickname</h2>
+      <input type="text" id="nicknameInput" placeholder="Your nickname..." maxlength="20">
+      <div class="modal-actions">
+        <button class="btn" onclick="submitLogin()">Play!</button>
+        <button class="btn btn-secondary" onclick="closeLoginModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

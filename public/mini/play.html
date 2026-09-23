@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Game — ArcadeZone</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/" class="logo">🎮 ARCADE<span>ZONE</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/mini/">Mini Games</a>
+      <a href="/leaderboard">Leaderboard</a>
+      <a href="/admin">Admin</a>
+    </div>
+    <div class="player-area">
+      <span id="playerName">Guest</span>
+    </div>
+  </nav>
+
+  <div class="game-page">
+    <h1 id="gameTitle">Mini Game</h1>
+    <p class="game-controls" id="gameControls"></p>
+
+    <div class="game-area">
+      <div class="game-info">
+        <div>Score: <span id="score">0</span></div>
+        <div id="extraInfo"></div>
+      </div>
+      <canvas id="gameCanvas" width="400" height="400"></canvas>
+      <div class="game-buttons">
+        <button class="btn" id="startBtn" onclick="startGame()">Start Game</button>
+        <button class="btn btn-secondary" id="pauseBtn" onclick="togglePause()" style="display:none;">Pause</button>
+        <a href="/mini/" class="btn btn-secondary" style="text-decoration:none;">All Games</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 ArcadeZone. All rights reserved.</p>
+  </footer>
+
+  <script src="/js/mini/games-data.js"></script>
+  <script src="/js/mini/engine-clicker.js"></script>
+  <script src="/js/mini/engine-dodge.js"></script>
+  <script src="/js/mini/engine-catch.js"></script>
+  <script src="/js/mini/engine-runner.js"></script>
+  <script src="/js/mini/engine-memory.js"></script>
+  <script src="/js/mini/engine-timing.js"></script>
+  <script src="/js/mini/engine-puzzle.js"></script>
+  <script src="/js/mini/mini-games.js"></script>
+</body>
+</html>

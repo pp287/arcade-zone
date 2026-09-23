@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — ArcadeZone</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/" class="logo">🎮 ARCADE<span>ZONE</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/leaderboard">Leaderboard</a>
+      <a href="/admin">Admin</a>
+    </div>
+    <div class="player-area"><span>Admin</span></div>
+  </nav>
+
+  <div class="admin-page">
+    <h1>⚙️ Admin Panel</h1>
+
+    <div class="admin-tabs">
+      <div class="game-tab active" onclick="switchTab('dashboard', this)">📊 Dashboard</div>
+      <div class="game-tab" onclick="switchTab('announcements', this)">📢 Announcements</div>
+      <div class="game-tab" onclick="switchTab('players', this)">👥 Players</div>
+      <div class="game-tab" onclick="switchTab('scores', this)">🎮 Scores</div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="admin-section" id="tab-dashboard">
+      <h2>Overview</h2>
+      <div class="stats-overview" style="max-width:100%;justify-content:space-around;">
+        <div class="stat-item"><span id="totalPlayers">0</span><label>Players</label></div>
+        <div class="stat-item"><span id="totalPlays">0</span><label>Total Plays</label></div>
+        <div class="stat-item"><span>5</span><label>Games</label></div>
+      </div>
+      <h3 style="color:var(--neon-blue);margin:1rem 0;">Game Stats</h3>
+      <table class="leaderboard-table" id="statsTable">
+        <thead><tr><th>Game</th><th>Plays</th><th>Top Score</th><th>Players</th></tr></thead>
+        <tbody id="statsBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Announcements -->
+    <div class="admin-section" id="tab-announcements" style="display:none;">
+      <h2>Manage Announcements</h2>
+      <div class="admin-form">
+        <label>Title</label>
+        <input type="text" id="annTitle" placeholder="Announcement title...">
+        <label>Content</label>
+        <textarea id="annContent" placeholder="Announcement content..."></textarea>
+        <button class="btn" onclick="createAnnouncement()">Publish</button>
+      </div>
+      <h3 style="color:var(--neon-blue);margin-bottom:0.8rem;">Existing</h3>
+      <div class="ann-list" id="annList"></div>
+    </div>
+
+    <!-- Players -->
+    <div class="admin-section" id="tab-players" style="display:none;">
+      <h2>All Players</h2>
+      <table class="leaderboard-table">
+        <thead><tr><th>ID</th><th>Nickname</th><th>Plays</th><th>Best Score</th><th>Joined</th></tr></thead>
+        <tbody id="playersBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Scores -->
+    <div class="admin-section" id="tab-scores" style="display:none;">
+      <h2>Recent Scores</h2>
+      <table class="leaderboard-table">
+        <thead><tr><th>Player</th><th>Game</th><th>Score</th><th>Date</th></tr></thead>
+        <tbody id="scoresBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 ArcadeZone. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function switchTab(tab, el) {
+      document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
+      document.getElementById('tab-' + tab).style.display = 'block';
+      document.querySelectorAll('.admin-tabs .game-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    async function loadDashboard() {
+      try {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+        document.getElementById('totalPlayers').textContent = data.totalPlayers;
+        const totalPlays = data.games.reduce((s, g) => s + g.totalPlays, 0);
+        document.getElementById('totalPlays').textContent = totalPlays;
+        document.getElementById('statsBody').innerHTML = data.games.map(g =>
+          `<tr><td>${g.game}</td><td>${g.totalPlays}</td><td>${g.topScore}</td><td>${g.uniquePlayers}</td></tr>`
+        ).join('');
+      } catch (e) { /* silent */ }
+    }
+
+    async function loadPlayers() {
+      try {
+        const res = await fetch('/admin/api/players');
+        const data = await res.json();
+        document.getElementById('playersBody').innerHTML = data.map(p =>
+          `<tr><td>${p.id}</td><td>${p.nickname}</td><td>${p.total_plays}</td><td>${p.best_score || 0}</td><td>${p.created_at}</td></tr>`
+        ).join('');
+      } catch (e) { /* silent */ }
+    }
+
+    async function loadScores() {
+      try {
+        const res = await fetch('/admin/api/scores');
+        const data = await res.json();
+        document.getElementById('scoresBody').innerHTML = data.map(s =>
+          `<tr><td>${s.nickname}</td><td>${s.game}</td><td>${s.score}</td><td>${s.created_at}</td></tr>`
+        ).join('');
+      } catch (e) { /* silent */ }
+    }
+
+    async function loadAnnouncements() {
+      try {
+        const res = await fetch('/api/announcements');
+        const data = await res.json();
+        document.getElementById('annList').innerHTML = data.map(a =>
+          `<div class="ann-item">
+            <div class="ann-item-info"><h4>${a.title}</h4><p>${a.content}</p></div>
+            <div class="ann-item-actions">
+              <button class="btn btn-sm btn-danger" onclick="deleteAnnouncement(${a.id})">Delete</button>
+            </div>
+          </div>`
+        ).join('');
+      } catch (e) { /* silent */ }
+    }
+
+    async function createAnnouncement() {
+      const title = document.getElementById('annTitle').value.trim();
+      const content = document.getElementById('annContent').value.trim();
+      if (!title || !content) return alert('Fill in both fields');
+      try {
+        await fetch('/admin/api/announcements', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, content })
+        });
+        document.getElementById('annTitle').value = '';
+        document.getElementById('annContent').value = '';
+        loadAnnouncements();
+      } catch (e) { alert('Failed'); }
+    }
+
+    async function deleteAnnouncement(id) {
+      if (!confirm('Delete this announcement?')) return;
+      try {
+        await fetch(`/admin/api/announcements/${id}`, { method: 'DELETE' });
+        loadAnnouncements();
+      } catch (e) { alert('Failed'); }
+    }
+
+    loadDashboard();
+    loadPlayers();
+    loadScores();
+    loadAnnouncements();
+  </script>
+</body>
+</html>

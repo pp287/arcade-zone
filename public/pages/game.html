@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game — ArcadeZone</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/" class="logo">🎮 ARCADE<span>ZONE</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/leaderboard">Leaderboard</a>
+      <a href="/admin">Admin</a>
+    </div>
+    <div class="player-area">
+      <span id="playerName">Guest</span>
+    </div>
+  </nav>
+
+  <div class="game-page">
+    <h1 id="gameTitle">Game</h1>
+    <p class="game-controls" id="gameControls"></p>
+
+    <div class="game-area">
+      <div class="game-info">
+        <div>Score: <span id="score">0</span></div>
+        <div id="extraInfo"></div>
+      </div>
+      <canvas id="gameCanvas" width="400" height="400"></canvas>
+      <div class="game-buttons">
+        <button class="btn" id="startBtn" onclick="startGame()">Start Game</button>
+        <button class="btn btn-secondary" id="pauseBtn" onclick="togglePause()" style="display:none;">Pause</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 ArcadeZone. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // ===== Determine which game to load =====
+    const gamePath = window.location.pathname.split('/').pop();
+    const gameConfig = {
+      snake: { title: '🐍 Snake', controls: 'Use Arrow Keys or WASD to move. Eat food to grow!', script: '/js/snake.js', width: 400, height: 400 },
+      tetris: { title: '🧱 Tetris', controls: '← → to move, ↑ to rotate, ↓ soft drop, Space for hard drop', script: '/js/tetris.js', width: 300, height: 600 },
+      memory: { title: '🃏 Memory Match', controls: 'Click cards to flip them. Find all matching pairs!', script: '/js/memory.js', width: 400, height: 400 },
+      '2048': { title: '🔢 2048', controls: 'Use Arrow Keys to slide tiles. Merge same numbers to reach 2048!', script: '/js/game2048.js', width: 400, height: 400 },
+      breakout: { title: '🧨 Breakout', controls: 'Move mouse or Arrow Keys to control the paddle. Break all bricks!', script: '/js/breakout.js', width: 480, height: 400 }
+    };
+
+    const config = gameConfig[gamePath];
+    if (!config) {
+      document.querySelector('.game-page').innerHTML = '<h1>Game Not Found</h1><p><a href="/">Go Home</a></p>';
+    } else {
+      document.title = config.title + ' — ArcadeZone';
+      document.getElementById('gameTitle').textContent = config.title;
+      document.getElementById('gameControls').textContent = config.controls;
+
+      const canvas = document.getElementById('gameCanvas');
+      canvas.width = config.width;
+      canvas.height = config.height;
+
+      const s = document.createElement('script');
+      s.src = config.script;
+      document.body.appendChild(s);
+    }
+
+    // Load player name
+    const player = JSON.parse(localStorage.getItem('arcade_player') || 'null');
+    if (player) document.getElementById('playerName').textContent = player.nickname;
+
+    // Shared score display
+    function updateScore(val) {
+      document.getElementById('score').textContent = val;
+    }
+
+    // Submit score to server
+    async function submitScore(score) {
+      if (!player) return;
+      try {
+        await fetch('/api/score', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ player_id: player.id, game: gamePath, score })
+        });
+      } catch (e) { /* silent */ }
+    }
+
+    function togglePause() {
+      if (typeof pauseGame === 'function') pauseGame();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard — ArcadeZone</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/" class="logo">🎮 ARCADE<span>ZONE</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/leaderboard">Leaderboard</a>
+      <a href="/admin">Admin</a>
+    </div>
+    <div class="player-area">
+      <span id="playerName">Guest</span>
+    </div>
+  </nav>
+
+  <div class="leaderboard-page">
+    <h1>🏆 Leaderboard</h1>
+    <div class="game-tabs">
+      <div class="game-tab active" data-game="snake" onclick="switchGame('snake', this)">🐍 Snake</div>
+      <div class="game-tab" data-game="tetris" onclick="switchGame('tetris', this)">🧱 Tetris</div>
+      <div class="game-tab" data-game="memory" onclick="switchGame('memory', this)">🃏 Memory</div>
+      <div class="game-tab" data-game="2048" onclick="switchGame('2048', this)">🔢 2048</div>
+      <div class="game-tab" data-game="breakout" onclick="switchGame('breakout', this)">🧨 Breakout</div>
+    </div>
+    <table class="leaderboard-table">
+      <thead>
+        <tr><th>Rank</th><th>Player</th><th>Best Score</th></tr>
+      </thead>
+      <tbody id="leaderboardBody">
+        <tr><td colspan="3" style="text-align:center;color:var(--text-dim);">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 ArcadeZone. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const player = JSON.parse(localStorage.getItem('arcade_player') || 'null');
+    if (player) document.getElementById('playerName').textContent = player.nickname;
+
+    let currentGame = 'snake';
+
+    function switchGame(game, el) {
+      currentGame = game;
+      document.querySelectorAll('.game-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      loadLeaderboard(game);
+    }
+
+    async function loadLeaderboard(game) {
+      try {
+        const res = await fetch(`/api/leaderboard/${game}?limit=20`);
+        const data = await res.json();
+        const tbody = document.getElementById('leaderboardBody');
+        if (data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-dim);">No scores yet. Be the first!</td></tr>';
+          return;
+        }
+        tbody.innerHTML = data.map((row, i) => {
+          const rankClass = i < 3 ? `rank-${i+1}` : '';
+          const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}`;
+          return `<tr><td class="${rankClass}">${medal}</td><td>${row.nickname}</td><td class="${rankClass}">${row.best_score}</td></tr>`;
+        }).join('');
+      } catch (e) {
+        document.getElementById('leaderboardBody').innerHTML = '<tr><td colspan="3" style="text-align:center;color:#ff3355;">Failed to load</td></tr>';
+      }
+    }
+
+    loadLeaderboard('snake');
+  </script>
+</body>
+</html>
